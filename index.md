@@ -8,7 +8,7 @@ As a group of aspiring data scientists, we are highly interested and motivated t
 
 ### Purpose
 
-We would like to explore more about income and realise our own place predict from analysis of the data. Specifically, we will be analyzing factors that would lead us to earn $100k/yr upon graduation. We would also like to know how the representativeness of certain socioeconomic groups affect their salary negotiation, and whether our project could help with uncovering the transparency lacking in this dynamic.
+We would like to explore more about income and realise our own place predict from analysis of the data. Specifically, we will be analyzing a set of factors that are potentially predictive of the outcome of us earning $100k/yr upon graduation. We will be using a selection of methods to visualise the data as well as reduce the dimension before applying logistic gression, K-nearest neighbor, decision tree, random forest to make predictions. The data would also be presented in a shiny app. Apart from our own money concerns, we would also like to learn about the representativeness of certain socioeconomic groups affect their salary negotiation, and whether our project could help with uncovering the transparency lacking in this dynamic.
 
 Our preferred features include: company, level, title, education level and some other personal backgrounds.
 
