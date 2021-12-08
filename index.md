@@ -20,15 +20,15 @@ The original dataset contains 62642 records. We filtered the redundant features 
 
 We wanted to see the base salary of different titles.
 
-<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_title.png" width="60%"/>  
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_title.png" width="100%"/>  
 
 Does race matter?
 
-<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_race.png" width="60%"/>  
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_race.png" width="100%"/>  
 
 What about education?
 
-<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="60%"/>  
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="100%"/>  
 
 ### Our Discovery
 
