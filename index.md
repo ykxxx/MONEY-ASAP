@@ -1,14 +1,14 @@
 ## Welcome to Your Salary Estimator!
 
-Wanna lead a perfect life? 🤑🤑🤑
+Wanna lead a perfect life without money worries? 🤑🤑🤑
 
 ---
 
-As a group of aspiring data scientists, we are highly interested and motivated to embark on our career in tech companies. Before seeking a full-time job, we want to learn more about the salaries from different companies. While some of us have started on our internships already, the rest would like to also navigate the status quo of data science and STEM career options as possible alternative plans. We would also like to know how the representativeness of certain socioeconomic groups affect their salary negotiation, and whether our project could help with uncovering the transparency lacking in this dynamic.
+As a group of aspiring data scientists, we are highly interested and motivated to embark on our career in tech companies. Before seeking a full-time job, we want to learn more about the salaries from different companies. While some of us have started on our internships, the rest would like to also navigate the data science and STEM career options as possible alternatives. 
 
 ### Purpose
 
-We would like to explore more about income and realise our own placements within the data. Specifically, we will be analyzing factors that would lead us to earn $100k/yr upon graduation.
+We would like to explore more about income and realise our own place predict from analysis of the data. Specifically, we will be analyzing factors that would lead us to earn $100k/yr upon graduation. We would also like to know how the representativeness of certain socioeconomic groups affect their salary negotiation, and whether our project could help with uncovering the transparency lacking in this dynamic.
 
 Our preferred features include: company, level, title, education level and some other personal backgrounds.
 
