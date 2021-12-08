@@ -30,9 +30,9 @@ What about education?
 
 <img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="100%"/>  
 
-### Our Discovery
+### The Analysis
 
-### Logistic Regression
+## Logistic Regression
 
 Company and location information is excluded from our multinomial logistic regression model because they are categorical data with so many categories that they obscure our results. First, we fit a full model with all covariates we selected to see the general relationship pattern. We excluded the individuals with NA entries in either Education, Race, and gender to tidy up the data and to make trends more visible. Another reason we decide to drop these entries is that without them, we still have enough data (>20,000) to draw strong prediction power. 
 
@@ -159,7 +159,7 @@ sapply(dataset, "class")
 Now our dataset looks good and we can get started to build up our model!
 
 
-### KNN
+## KNN
 ```{r}
 set.seed(42)
 x <- stratified(dataset, "y", 0.8, keep.rownames = TRUE)
@@ -220,7 +220,7 @@ rpart.plot(fit3)
 The third tree predicts the outcome by the same cutoffs in years of experience. The rest of the division lies in size category and title.
   
   
-### Random Forest
+## Random Forest
 
 We build a random forest model with 3 features for each tree (~ sqrt level)
 ```{r}
@@ -239,7 +239,7 @@ as.matrix(rf_im[order(-rf_im[,1]),])
 ```
 
 
-### Visualization
+## Visualization
 
 Here, we do a visualization using tSNE.
 
@@ -294,12 +294,12 @@ ggplot(rd_rs, aes(x=V1, y=V2, color=Class)) +
 ```
 
 
-### Linear Regression
+## Linear Regression
 
 We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section.
 
 
-#### Explore Dataset
+## Explore Dataset
 
 ```{r}
 dataframe = read.csv("Levels_Fyi_Salary_Data.csv")
@@ -626,7 +626,7 @@ head(experience_encode)
 ```
 
 
-#### Training the Linear Regression model
+## Training the Linear Regression model
 
 To train our linear regression model, we first need to split the dataset into training and testing.
 
@@ -680,7 +680,7 @@ test$basesalary[1:10]
 ```
 
 
-#### Optimizing Model Performance - One-hot Encoding and Regularization
+## Optimizing Model Performance - One-hot Encoding and Regularization
 
 To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we first need to prepare the one-hot encoded dataset.
 
@@ -745,19 +745,19 @@ rmse_ridge
 Overall, we think our first simple linear regression gives a reasonably good prediction on base salary, so we decided to use its weight to build our final salary predictor shiny app
 
 
-### Shiny APP
+# Shiny APP
 
 We implemented 3 main features in our Shiny App, which are embedded in 3 seperate tabs.
 
-#### Estimator
+## Estimator
 
 User can input their information for each of the 5 features in the drop-down bar, and our salary estimator will return a table of salary estimation as well as the confidence intercal for each of the 15 titles.
 
-#### Boxplot
+## Boxplot
 
 User can view the boxplot of base salary distribution for each of the 6 features
 
-#### Salary distribution plot
+## Salary distribution plot
 
 User can select a base salary upper bound, and view the distribution of salary.
 
@@ -879,6 +879,10 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 
 ```
+
+### Our Discovery
+
+[比较model]
 
 ### Let's predict!
 
