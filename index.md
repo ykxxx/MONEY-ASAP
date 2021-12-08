@@ -18,6 +18,10 @@ We used [Kaggle Data Science and STEM income dataset](https://www.kaggle.com/jac
 
 [EDA]
 
+The original dataset contains 62642 records. We filtered the redundant features and kept `company`, `title`, `totalyearlycompensation`, `location`, `yearsofexperience`, `yearsatcompany`, `basesalary`,`stockgrantvalue`,`bonus`,`gender`,`cityid`,`dmaid`,`Race`,`Education` and corrected datatype.
+
+We wanted to see the base salary of different titles.
+
 ### Our Discovery
 
 [All analysis results]
