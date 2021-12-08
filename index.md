@@ -16,19 +16,19 @@ Our preferred features include: company, level, title, education level and some 
 
 We used [Kaggle Data Science and STEM income dataset](https://www.kaggle.com/jackogozaly/data-science-and-stem-salaries) for our analysis. This is a dataset scraped from the website of levels.fyi, a site with a visualised, crowdsourced database for transparent leveling charts across companies to help with job negotiation and possibly prevent underpaying for those underrepresented within tech industry.
 
-The original dataset contains 62642 records. We filtered the redundant features and kept `company`, `title`, `totalyearlycompensation`, `location`, `yearsofexperience`, `yearsatcompany`, `basesalary`,`stockgrantvalue`,`bonus`,`gender`,`cityid`,`dmaid`,`Race`,`Education` and corrected datatype.
+The original dataset contains 62642 records. We filtered the redundant features and kept `company`, `title`, `totalyearlycompensation`, `location`, `yearsofexperience`, `yearsatcompany`, `basesalary`, `stockgrantvalue`, `bonus`, `gender`, `cityid`, `dmaid`, `Race`, `Education`, and corrected datatype.
 
 We wanted to see the base salary of different titles.
 
-[Base salary of different titles](https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_title.png)
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_title.png" width="60%"/>  
 
 Does race matter?
 
-[Base salary of different races](https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_race.png)
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_race.png" width="60%"/>  
 
 What about education?
 
-[Base salary of different level of education](https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png)
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="60%"/>  
 
 ### Our Discovery
 
