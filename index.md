@@ -107,7 +107,7 @@ In this section, we closely examined the dataset and applied dimension reduction
   
 
 <details>
-<summary><u>K-Nearest Neighbors</u> <b>(KNN)</b> (<i>click to expand</i>)</summary>
+<summary><b>K-Nearest Neighbors (KNN)</b></summary>
 <br>
   
 <pre class="r"><code>set.seed(42)
@@ -745,7 +745,7 @@ Overall, we think our first simple linear regression gives a reasonably good pre
 We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predict their salaries.
 
 <details>
-<summary><b>Shiny APP Implementation</b> (<i>Click to Expand</i>)</summary><p>
+<summary><b>Shiny APP Implementation</b> (<i>Click to Expand</i>)</summary>
 <br>
 <p>We implemented 3 main features in our Shiny App, which are embedded in 3 seperate tabs.</p>
 <div id="estimator" class="section level4">
@@ -877,7 +877,7 @@ ui &lt;- fluidPage(
 # Run the application 
 # shinyApp(ui = ui, server = server)</code></pre>
 
-</p></details>
+</details>
   
   
 Demo:
