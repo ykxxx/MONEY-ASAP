@@ -43,7 +43,11 @@ df_1 <- filtered_df %>% select(c("title", "yearsofexperience", "yearsatcompany",
 mod_logistic_whole = glm(y ~ ., data = df_1, family=binomial())
 summary(mod_logistic_whole)
 ```
-
+  
+<code class="hljs">df_1 &lt;- filtered_df %&gt;% select(c(<span class="hljs-string">"title"</span>, <span class="hljs-string">"yearsofexperience"</span>, <span class="hljs-string">"yearsatcompany"</span>,<span class="hljs-string">'gender'</span>,<span class="hljs-string">'cityid'</span>,<span class="hljs-string">'dmaid'</span>,<span class="hljs-string">'Race'</span>,<span class="hljs-string">'Education'</span>, <span class="hljs-string">'y'</span>)) %&gt;% filter(!is.na(Education) &amp; !is.na(gender) &amp; !is.na(Race))
+mod_logistic_whole = glm(y ~ ., data = df_1, family=binomial())
+summary(mod_logistic_whole)</code>
+  
 From our full model, we see that all of our covariates provide helpful information with as least one category being significant except gender. We then try a bidirectional step-wise selection procedure to further feature selection.
 
 ```{r}
