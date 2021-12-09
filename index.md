@@ -30,140 +30,78 @@ What about education?
 
 <img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="100%"/>  
 
-## Our Analysis
-
+## Final Analysis
+<p>
+Shown below is the analysis conducted by team A$AP Money (<i>click to expand</i>):
+</p>
 <details>
-<summary><u>Logistic</u> <b>Regression</b> (<i>click to expand</i>)</summary>
+<summary><b>Logistic Regression</b></summary>
 <br>
-  
+<p>
 Company and location information is excluded from our multinomial logistic regression model because they are categorical data with so many categories that they obscure our results. First, we fit a full model with all covariates we selected to see the general relationship pattern. We excluded the individuals with NA entries in either Education, Race, and gender to tidy up the data and to make trends more visible. Another reason we decide to drop these entries is that without them, we still have enough data (>20,000) to draw strong prediction power. 
-
-```{r}
-df_1 <- filtered_df %>% select(c("title", "yearsofexperience", "yearsatcompany",'gender','cityid','dmaid','Race','Education', 'y')) %>% filter(!is.na(Education) & !is.na(gender) & !is.na(Race))
-mod_logistic_whole = glm(y ~ ., data = df_1, family=binomial())
-summary(mod_logistic_whole)
-```
+</p>
 <p>
 <pre class="r"><code class="hljs">df_1 &lt;- filtered_df %&gt;% select(c(<span class="hljs-string">"title"</span>, <span class="hljs-string">"yearsofexperience"</span>, <span class="hljs-string">"yearsatcompany"</span>,<span class="hljs-string">'gender'</span>,<span class="hljs-string">'cityid'</span>,<span class="hljs-string">'dmaid'</span>,<span class="hljs-string">'Race'</span>,<span class="hljs-string">'Education'</span>, <span class="hljs-string">'y'</span>)) %&gt;% filter(!is.na(Education) &amp; !is.na(gender) &amp; !is.na(Race))
 mod_logistic_whole = glm(y ~ ., data = df_1, family=binomial())
 summary(mod_logistic_whole)</code></pre>
 </p>
-  
-From our full model, we see that all of our covariates provide helpful information with as least one category being significant except gender. We then try a bidirectional step-wise selection procedure to further feature selection.
-
-```{r}
-mod_logistic_step <- step(glm(y ~ 1, data = df_1), ~ title + yearsofexperience + yearsatcompany + gender + cityid + dmaid + Race + Education, direction = "both")
-summary(mod_logistic_step)
+<p>
+From our full model, we see that all of our covariates provide helpful information with as least one category being significant except gender. We then proceed to bidirectional step-wise selection procedure to further feature selection and applied complete case analysis (CCA) where there is data missingness in the category missing completely at random (MCAR). Upon completion of feature selection and running the model again with the final set of covariates, we generated a confusion matrix as follows:
+</p>
 ```
-
-The step-wise selection also shows gender to be insignificant, so drop gender. Also, drop entries with 0 in basesalary, they are missing completely at random.
-
-```{r}
-df_2 <- filtered_df %>% select(c("basesalary", "title", "yearsofexperience", "yearsatcompany",'cityid','dmaid','Race','Education', 'y')) %>% filter(!is.na(Education)) %>% filter(!is.na(Race)) %>% filter(basesalary!=0)
-
-df_2 <- df_2 %>% select(c("title", "yearsofexperience", "yearsatcompany",'cityid','dmaid','Race','Education', 'y'))
-df_2$y <- as.factor(df_2$y)
-dim(df_2)
-```
-
-Build our final logistic model with the edited dataset.
-
-```{r}
-mod_logistic = glm(y ~ ., data = df_2, family=binomial())
-summary(mod_logistic)
-```
-
-Feature selection done, test accuracy next.
-
-```{r}
-set.seed(1)
-x <- stratified(df_2, "y", 0.8, keep.rownames = TRUE)
-train_set <- x %>% dplyr::select(-rn)
-train_index <- as.numeric(x$rn)
-test_set <- df_2[-train_index,]
-print(dim(train_set))
-print(dim(test_set))
-head(train_set)
-head(test_set)
-```
-
-```{r}
-mod_logistic_train = glm(y ~ ., data = train_set, family=binomial())
-preds_hat <- predict(mod_logistic_train, newdata = test_set, type= "response")
-preds <- ifelse(preds_hat>0.5,1,0)
-preds <- as.numeric(substring(preds,-1))
-confusionMatrix(data = as.factor(preds), reference = as.factor(test_set$y), positive = "1")
-```
-
+<p>
+<pre class="r"><code>set.seed(1)
+x &lt;- stratified(df_2, &quot;y&quot;, 0.8, keep.rownames = TRUE)
+train_set &lt;- x %&gt;% dplyr::select(-rn)
+train_index &lt;- as.numeric(x$rn)
+test_set &lt;- df_2[-train_index,]
+</code></pre>
+</p>
+<p>
+<pre class="r"><code>mod_logistic_train = glm(y ~ ., data = train_set, family=binomial())
+preds_hat &lt;- predict(mod_logistic_train, newdata = test_set, type= &quot;response&quot;)
+preds &lt;- ifelse(preds_hat&gt;0.5,1,0)
+preds &lt;- as.numeric(substring(preds,-1))
+confusionMatrix(data = as.factor(preds), reference = as.factor(test_set$y), positive = &quot;1&quot;)</code></pre>
+</p>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    0    1
+##          0  715  201
+##          1  393 3027
+##                                           
+##                Accuracy : 0.863           
+##                  95% CI : (0.8524, 0.8731)
+##     No Information Rate : 0.7445          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.6182          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 4.621e-15       
+##                                           
+##             Sensitivity : 0.9377          
+##             Specificity : 0.6453          
+##          Pos Pred Value : 0.8851          
+##          Neg Pred Value : 0.7806          
+##              Prevalence : 0.7445          
+##          Detection Rate : 0.6981          
+##    Detection Prevalence : 0.7887          
+##       Balanced Accuracy : 0.7915          
+##                                           
+##        &#39;Positive&#39; Class : 1               
+## </code></pre>
+<p>
 Our logistic regression model yields an overall accuracy of 0.863 with 95% CI (0.8524, 0.8731) and a very small p-value, which indicates that we did an OK job in predicting basesalary >= 100K. However, our sensitivity is 0.9377 and our specificity is 0.6453, giving a balanced accuracy of 0.7915. This means our logistic regression prediction model is making more Type 1 error (False positive) than type 2 errors.
+</p>
+</details>
 
-
-### Data Manipulation for KNN, Decision Tree, and Random Forest
-We want to take a look on how many unqiue values are in our dataset, for categorical feature such as company and feature.
-```{r}
-filtered_dataset <- filtered_df %>% filter(!is.na(.))
-print(length(unique(filtered_dataset$company)))
-print(length(unique(filtered_dataset$title)))
-
-```
-Since there are too many unqiue company in our dataset, it is better to cluster these companies to reduce the dimensionality of the company feature. Our current approach is to cluster companies based on its size(a.k.a number of time each company appear in the dataset). We re-classify company into 5 classes. 
-```{r}
-sorted_company <- filtered_dataset %>% count(tolower(company)) %>% arrange(desc(n))
-sorted_company
-```
-
-```{r}
-filtered_dataset <- filtered_dataset %>% mutate(company = tolower(company))
-df <- left_join(filtered_dataset, sorted_company, by = c("company" = "tolower(company)"))
-df <- df %>% mutate(size_category  = case_when(
-  n <= 10 ~ "<10",
-  n > 10 & n <= 50 ~ "10~50",
-  n > 50 & n <= 100 ~"50~100",
-  n > 100 & n <= 500 ~ "100~500",
-  n > 500 ~ "500+"
-
-))
-df <- df %>% mutate(employee_num = n) %>% select(-n)
-head(df)
-```
-The location feature looks a little bit untidy. So we separate it into city, state, country. 
-```{r}
-location <- df %>%
-  count(location) %>%
-  arrange(desc(n)) %>%
-  mutate(place = location) %>%
-  separate(place, sep = ",",  c("city", "state", "country"))
-
-location[is.na(location)] <- "US"
-df <- left_join(df, location, by = "location") %>% select(-location)
-head(df)
-```
-
-After the manipulation we want to see how exactly the distribution of dataset looks like for different locations
-```{r}
-df %>% ggplot(aes(size_category, basesalary)) + geom_boxplot()
-```
-```{r}
-df %>% ggplot(aes(country, basesalary)) + geom_boxplot()
-```
-We want to take a look on the U.S. data specifically
-```{r}
-df %>% filter(country == "US") %>% ggplot(aes(state, basesalary)) + geom_boxplot()
-```
-we want to drop missing value and see how the dataset looks like.
-```{r}
-cleaned_df <- drop_na(df)
-dim(cleaned_df)
-```
-We also need to factorize our variables. 
-```{r}
-cleaned_df <- cleaned_df %>% mutate(gender = as.factor(gender), size_category = as.factor(size_category), 
-                                  state = as.factor(state), country = as.factor(country), y = as.factor(y))
-dataset <- cleaned_df %>% select(c("title", "yearsofexperience", "yearsatcompany","gender","cityid","dmaid",
-                                  "Race","Education", "y","size_category","state","country"))
-sapply(dataset, "class")
-```
-Now our dataset looks good and we can get started to build up our model!
+<details>
+<summary><b>Data Manipulation for KNN, Decision Tree, and Random Forest</b></summary>
+<br>
+<p>
+In this section, we closely examined the dataset and applied dimension reduction (clustering), refined classification, data cleaning, further EDA of distribution, factorization where appropriate.
+</p>
 
 </details>
   
@@ -172,23 +110,47 @@ Now our dataset looks good and we can get started to build up our model!
 <summary><u>K-Nearest Neighbors</u> <b>(KNN)</b> (<i>click to expand</i>)</summary>
 <br>
   
-```{r}
-set.seed(42)
-x <- stratified(dataset, "y", 0.8, keep.rownames = TRUE)
-train_set <- x %>% dplyr::select(-rn)
-train_index <- as.numeric(x$rn)
-test_set <- dataset[-train_index,]
-print(dim(train_set))
-print(dim(test_set))
-```
-
-```{r}
-set.seed(42)
-knn_fit <- train_set %>% knn3(y~., data = ., k = 12)
-knn_hat <- predict(knn_fit, newdata = test_set, type = "class")
-knn_p <- f_hat2 <- predict(knn_fit, newdata = test_set, k=12)[,2]
-confusionMatrix(data = knn_hat, reference = as.factor(test_set$y), positive = "1")
-```
+<pre class="r"><code>set.seed(42)
+x &lt;- stratified(dataset, &quot;y&quot;, 0.8, keep.rownames = TRUE)
+train_set &lt;- x %&gt;% dplyr::select(-rn)
+train_index &lt;- as.numeric(x$rn)
+test_set &lt;- dataset[-train_index,]
+print(dim(train_set))</code></pre>
+<pre><code>## [1] 17273    12</code></pre>
+<pre class="r"><code>print(dim(test_set))</code></pre>
+<pre><code>## [1] 4318   12</code></pre>
+<pre class="r"><code>set.seed(42)
+knn_fit &lt;- train_set %&gt;% knn3(y~., data = ., k = 12)
+knn_hat &lt;- predict(knn_fit, newdata = test_set, type = &quot;class&quot;)
+knn_p &lt;- f_hat2 &lt;- predict(knn_fit, newdata = test_set, k=12)[,2]
+confusionMatrix(data = knn_hat, reference = as.factor(test_set$y), positive = &quot;1&quot;)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    0    1
+##          0  827  161
+##          1  276 3054
+##                                           
+##                Accuracy : 0.8988          
+##                  95% CI : (0.8894, 0.9076)
+##     No Information Rate : 0.7446          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.7245          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 4.943e-08       
+##                                           
+##             Sensitivity : 0.9499          
+##             Specificity : 0.7498          
+##          Pos Pred Value : 0.9171          
+##          Neg Pred Value : 0.8370          
+##              Prevalence : 0.7446          
+##          Detection Rate : 0.7073          
+##    Detection Prevalence : 0.7712          
+##       Balanced Accuracy : 0.8498          
+##                                           
+##        &#39;Positive&#39; Class : 1               
+## </code></pre>
                    
 </details>
   
@@ -783,10 +745,10 @@ Overall, we think our first simple linear regression gives a reasonably good pre
 We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predict their salaries.
 
 <details>
-<summary><u>Shiny</u> <b>APP</b> (<i>click to expand</i>)</summary><p>
+<summary><b>Shiny APP Implementation</b> (<i>Click to Expand</i>)</summary><p>
 <br>
 
-We implemented 3 main features in our Shiny App, which are embedded in 3 seperate tabs.
+We created 3 main features in our Shiny App, which are embedded in 3 seperate tabs.
 
 ### Estimator
 
