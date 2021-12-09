@@ -32,7 +32,7 @@ What about education?
 
 ## Final Analysis
 <p>
-Shown below is the analysis conducted by team A$AP Money (<i>click to expand</i>):
+Shown below is a brief overview of the analysis conducted by team A$AP Money (<i>click to expand</i>):
 </p>
 <details>
 <summary><b>Logistic Regression</b></summary>
@@ -331,68 +331,12 @@ lm_rmse</code></pre>
 <details>
 <summary><b>Optimizing Model Performance - One-hot Encoding and Regularization</b></summary>
 <br>
-
-To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we first need to prepare the one-hot encoded dataset.
-
-```{r}
-library(caret)
-
-df_one_hot <- us_df %>%
-  select(title, yearsofexperience, yearsatcompany, basesalary, Education, company_size)
-
-dmy <- dummyVars(" ~ .", data = df_one_hot)
-df_one_hot <- data.frame(predict(dmy, newdata = df_one_hot))
-str(df_one_hot)
-```
-
-Split training and testing dataset.
-
-```{r}
-train_one_hot <- df_one_hot[idx, ]
-test_one_hot <- df_one_hot[-idx, ]
-
-dim(train_one_hot)
-dim(test_one_hot)
-```
-
-Fit a linear regression model using the one-hot encoded dataset.
-
-```{r}
-lm2 <- lm(basesalary ~ ., data = train_one_hot)
-summary(lm2)
-```
-
-Evaluting model performance using RMSE on testing dataset. The RMSE is slightly lower than our previous linear regression model, which suggests that one-hot encoding do yield better results. However, since the difference is pretty small, we would still use the weight from our previous model for the ease of calculation.
-
-```{r}
-lm2_pred <- predict(lm2, newdata = test_one_hot)
-lm_rmse <- RMSE(lm2_pred, test_one_hot$basesalary)
-lm_rmse
-```
-
-To explore the effect of regularization, we also fit the one-hot encoded data into a ridge regression model.
-
-```{r}
-library(glmnet)
-
-x = as.matrix(subset(train_one_hot, select=-c(basesalary)))
-y_train = train_one_hot$basesalary
-x_test = as.matrix(subset(test_one_hot, select=-c(basesalary)))
-y_test = train_one_hot$basesalary
-
-ridge_reg = glmnet(x, y_train, alpha = 1, family = 'gaussian', lambda = 0.8)
-ridge_reg
-```
-
-The RMSE is higher for ridge regression, so we would not choose this model.
-
-```{r}
-pred <- predict(ridge_reg, newx = x_test)[, 1]
-rmse_ridge <- RMSE(pred, y_test)
-rmse_ridge
-```
-
-Overall, we think our first simple linear regression gives a reasonably good prediction on base salary, so we decided to use its weight to build our final salary predictor shiny app.
+<p>
+To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we prepared the one-hot encoded dataset, splited training and testing dataset, fitted a linear regression model using the one-hot encoded dataset, and evaluted model performance using RMSE on testing dataset. The RMSE is slightly lower than our previous linear regression model, which suggests that one-hot encoding do yield better results. However, since the difference is pretty small, we would still use the weight from our previous model for the ease of calculation. To explore the effect of regularization, we also fit the one-hot encoded data into a ridge regression model. However, the RMSE is higher for ridge regression, so we would not choose this model. 
+</p>
+<p>
+Overall, our first simple linear regression exhibits a reasonably good prediction on base salary, so we decided to use its weight to build our final salary predictor shiny app.
+</p>
 
 </details>
   
