@@ -338,11 +338,11 @@ Overall, our first simple linear regression exhibits a reasonably good predictio
 </details>
   
 
-### Our Discovery
+## Our Discovery
 
 [比较model]
 
-### Let's predict!
+## Let's predict!
 
 We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predict their salaries.
 
