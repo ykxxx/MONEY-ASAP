@@ -338,7 +338,13 @@ Overall, our first simple linear regression exhibits a reasonably good predictio
 
 ## Our Discovery
 
-[比较model]
+Method|Accuracy|Sensitivity|Specificity
+---|---|---|---
+Logistic Regression|0.863| 0.9377|0.6453
+KNN| 0.8988|0.9499|0.7498
+Random Forest|0.9085|0.9496|0.7888
+
+All models can make a sensible prediction with a relatively higher sensitivity then specificity. It shows that our models work better predicting `TRUE` labels, which represent getting a job with salary higher than 100k. `Random Forest` achieves the best performance, because it can better deal with overfitting and the problem with imbalanced data.
 
 ## Let's predict!
 
