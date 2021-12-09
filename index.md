@@ -244,390 +244,86 @@ Let's see the pattern of the strongest factor `dmaid`
 
 <details>
 <summary><b>Linear Regression</b></summary>
-<br>
-  
-We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section.
 
 
-## Explore Dataset
+### Explore Dataset
 
-```{r}
-dataframe = read.csv("Levels_Fyi_Salary_Data.csv")
-head(dataframe)
-```
-
-```{r}
-filtered_df <- dataframe %>% 
-  select(c("company", "title", "totalyearlycompensation", "location", "yearsofexperience", "yearsatcompany", 
-'basesalary','stockgrantvalue','bonus','gender','cityid','dmaid','Race','Education')) %>% 
-  mutate(company = as.factor(company), title <- as.factor(title), Race <- as.factor(Race), Education <- as.factor(Education)) %>%
-  filter(!is.na(Education) & !is.na(gender) & !is.na(Race))
-
-head(filtered_df)
-```
-
+<p>  
+We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section. We further examined the dataset for the purpose of the linear model, and some of our considerations include:
+</p>
+<p>
 Since the location in this datafram is encoded as City, State, Country (except for locations in the US, where it is encoded as City, State), we would like to split this into 3 separate features and take a look into the distribution of countries. 
-
-```{r}
-location <- filtered_df %>%
-  count(location) %>%
-  arrange(desc(n)) %>%
-  mutate(place = location) %>%
-  separate(place, sep = ",",  c("city", "state", "country"))
-
-location[is.na(location)] = "US"
-```
-
-Join the location table with our original dataset.
-
-```{r}
-joined_df <- filtered_df %>%
-  left_join(location, by = "location")
-
-head(joined_df)
-```
-
+</p>
+<p>
 After ploting the base salary for different countries, we can see that there is a large discrapencies between each countries.
-
-```{r}
-joined_df %>% 
-  ggplot(aes(country,basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
+</p>
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/7_country_discrp.png" width="95%"/>  
+<p>
 If we list the number of data we have for each countries, we can also see that the dataset is very imbalanced -- the majoriety of data comes from the US, where as other countries only contribute a very small amount of data, this can be a major problem for machine learning models, since there may not be enough data for the model to learn the representation for other countries properly. Therefore, we decided to filter only data from the US, and train the linear regression model as a base salary predictor for the US.
-
-```{r}
-joined_df %>%
-  count(country) %>%
-  arrange(desc(n))
-```
-
-```{r}
-us_df <- joined_df %>%
-  filter(country == "US")
-
-head(us_df)
-```
-
+</p>
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/7_us_data_display.png" width="95%"/>  
 
 ### Feature Engineering
-
+<p>
 Next we would like to proceed to the feature engineering stage. Since we are building the linear regression model to use it as the base salary predictor for our Shiny App, we can only include features that we want users to input for their salary prediction. This means that we cannot use feature such as `dmaid` in the model since we don't know what this feature represent. So after looking at our EDA plots, we decided to choose 6 features: `title`, `company`, `yearsatcompany`, `yearsofexperience`, `Education`, and `Race` as our features. 
-
+</p>
+<p>
 Considering the ease of calculation for our Shiny App Predictor, we also decided to use a categorical encoding for each feature instead of one-hot encoding, even though empirically one-hot encoding may yield better results. 
-
-To do the feature engineering for `title`, we plot the average base salary for each title again. We can see that there is a clear difference in average base salary for different title.
-
-```{r}
-us_df %>% 
-  drop_na() %>%
-  mutate(company = str_to_title(company)) %>%
-  select(c("company", "title", "location", "yearsofexperience", "yearsatcompany", 
-'basesalary','gender','cityid','dmaid','Race','Education'))
-
-```
-
-```{r}
-us_df %>% 
-  ggplot(aes(title,basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
-In order to make sure that our title encoding can capture this pattern of differences, we decided to first encode each title category as their average base salary, and later we would also normalize this encoding value to range between [0, 1].
-
-```{r}
-title_mean <- us_df %>%
-  group_by(title) %>%
-  summarise(title_encode = mean(basesalary)/10000) %>%
-  arrange(desc(title_encode))
-
-title_mean
-```
-
-We repeat the same process for the other 5 featues.
-
-```{r}
-us_df %>% 
-  filter(!is.na(Race)) %>%
-  ggplot(aes(Race,basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
-```{r}
-race_mean <- us_df %>%
-  group_by(Race) %>%
-  summarise(race_encode = mean(basesalary)/10000) %>%
-  arrange(desc(race_encode))
-
-race_mean
-```
-
-```{r}
-us_df %>% 
-  filter(!is.na(Education)) %>%
-  ggplot(aes(Education,basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
-```{r}
-education_mean <- us_df %>%
-  group_by(Education) %>%
-  summarise(education_encode = mean(basesalary)/10000) %>%
-  arrange(desc(education_encode))
-
-education_mean
-```
-
-```{r}
-us_df %>% 
-  filter(!is.na(yearsofexperience)) %>%
-  ggplot(aes(as.factor(yearsofexperience),basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
-```{r}
-experience_mean <- us_df %>%
-  group_by(yearsofexperience) %>%
-  summarise(experience_encode = mean(basesalary)/10000) %>%
-  arrange(desc(experience_encode))
-
-experience_mean
-```
-
-```{r}
-us_df %>% 
-  filter(!is.na(yearsatcompany)) %>%
-  ggplot(aes(as.factor(yearsatcompany),basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
-```{r}
-yearatcompany_mean <- us_df %>%
-  group_by(yearsatcompany) %>%
-  summarise(yearatcompany_encode = mean(basesalary)/10000) %>%
-  arrange(desc(yearatcompany_encode))
-
-yearatcompany_mean
-```
-
-For the feature `company`, we know that this dataset includes data from 1633 distinct conpaies, so we think it would probably be better it we convert `company` into new new feature with less levels. To do this, we first take a look into how the `company` feature distribution looks like.
-
-```{r}
-company <- us_df %>%
-  count(company) %>%
-  arrange(desc(n))
-
-head(company)
-```
-
-We also plot this distribution in a histrogram.
-
-```{r}
-company %>%
-  filter(n <= 100) %>%
-  ggplot(aes(n)) +
-  geom_histogram(bins = 20)
-```
-
-After taking a look into the specific data, we see that the number of appearance a company has in this dataset, `n`, actually highly correlates with the actual company size. For instance, the major tech companies like Amazon, Micorsoft, Google, Facebook, and Apple ranks top 5 in the tabke above, and all has over 1000 data entries. So we decided to use this `n` create a new feature called `company_size` and use this feature for our model training. 
-
-```{r}
-company_size <- company %>%
-  mutate(company_size = case_when(
-    n <= 3 ~ "1",
-    n <= 10 ~ "3 - 10",
-    n <= 50 ~ "11 - 50",
-    n <= 100 ~ "51 - 100",
-    n <= 500 ~ "101 - 500",
-    TRUE ~ ">500"
-  ))
-```
-
-```{r}
-us_df <- us_df %>%
-  left_join(company_size, by = "company")
-
-head(us_df)
-```
-
-We also repeat the same process for feature engineering.
-
-```{r}
-us_df %>% 
-  filter(!is.na(company_size)) %>%
-  ggplot(aes(company_size,basesalary))  + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylim(0,400000)
-```
-
-```{r}
-company_mean <- us_df %>%
-  group_by(company_size) %>%
-  summarise(company_encode = mean(basesalary)/10000) %>%
-  arrange(desc(company_encode))
-
-company_mean
-```
-
-To create the final dataframe for our model, we need to join all encoded feature together and normalize these feature to range between [0, 1] using the `min_max_norm` function.
-
-```{r}
-min_max_norm <- function(x) {
-    (x - min(x)) / (max(x) - min(x))
-  }
-```
-
-```{r}
-lm_us_df<- us_df %>%
-  left_join(company_mean, by = "company_size") %>%
-  left_join(title_mean, by = "title") %>%
-  left_join(education_mean, by = "Education") %>%
-  left_join(race_mean, by = "Race") %>%
-  left_join(experience_mean, by = "yearsofexperience") %>%
-  left_join(yearatcompany_mean, by = "yearsatcompany") %>%
-  mutate(company = min_max_norm(company_encode), title = min_max_norm(title_encode), education = min_max_norm(education_encode), race = min_max_norm(race_encode), experience = min_max_norm(experience_encode), yearsatcompany = min_max_norm(yearatcompany_encode)) %>%
-  select(basesalary, company, title, education, race, experience, yearsatcompany)
-
-head(lm_us_df)
-```
-
-
-### Saving cleaned data and encoded features
-
-We save the cleaned dataframe into a .csv file and also save all the encoding data so that we can use them for reference when we later calculate the predicted base salary in our Shiny App Predictor.
-
-```{r}
-write.csv(x=us_df, file="project/clean_us_salary_data.csv", row.names = FALSE)
-```
-
-```{r}
-company_encode <- company_size %>%
-  left_join(company_mean, by = "company_size") %>%
-  mutate(x = company, y = min_max_norm(company_encode)) %>%
-  select(x, y, company_size)
-
-write.csv(x=company_encode, file="project/company_encode.csv", row.names = FALSE)
-
-head(company_encode)
-```
-
-```{r}
-education_encode <- education_mean %>%
-  mutate(x = Education, y = min_max_norm(education_encode)) %>%
-  select(x, y)
-
-write.csv(x=education_encode, file="project/education_encode.csv", row.names = FALSE)
-
-head(education_encode)
-```
-
-```{r}
-title_encode <- title_mean %>%
-  mutate(x = title, y = min_max_norm(title_encode)) %>%
-  select(x, y)
-
-write.csv(x=title_encode, file="project/title_encode.csv", row.names = FALSE)
-
-head(title_encode)
-```
-
-```{r}
-yearsatcompany_encode <- yearatcompany_mean %>%
-  mutate(x = yearsatcompany, y = min_max_norm(yearatcompany_encode)) %>%
-  select(x, y)
-
-write.csv(x=yearsatcompany_encode, file="project/yearsatcompany_encode.csv", row.names = FALSE)
-
-head(yearsatcompany_encode)
-```
-
-```{r}
-race_encode <- race_mean %>%
-  mutate(x = Race, y = min_max_norm(race_encode)) %>%
-  select(x, y)
-
-write.csv(x=race_encode, file="project/race_encode.csv", row.names = FALSE)
-
-head(race_encode)
-```
-
-```{r}
-experience_encode <- experience_mean %>%
-  mutate(x = yearsofexperience, y = min_max_norm(experience_encode)) %>%
-  select(x, y)
-
-write.csv(x=experience_encode, file="project/experience_encode.csv", row.names = FALSE)
-
-head(experience_encode)
-```
-
+</p>
+<p>
+To do the feature engineering for `title`, we plot the average base salary for each title again. We can see that there is a clear difference in average base salary for different title. To make sure that our title encoding can capture this pattern of differences, we decided to first encode each title category as their average base salary, and later we would also normalize this encoding value to range between [0, 1], and this process was repeated for the other 5 features.
+</p>
+<p>
+For the feature `company`, we know that this dataset includes data from 1633 distinct conpaies, so we think it would probably be better it we convert `company` into new new feature with less levels. To do this, we first take a look into how the `company` feature distribution looks like. After visual examination and summaries of the data, we see that the number of appearance a company has in this dataset, `n`, actually highly correlates with the actual company size. For instance, the major tech companies like Amazon, Micorsoft, Google, Facebook, and Apple ranks top 5 in the tabke above, and all has over 1000 data entries. So we decided to use this `n` create a new feature called `company_size` and use this feature for our model training. After the above was completed for our selected features, we joined the data and exported the cleaned dataframe into a .csv file and also save all the encoding data so that we can use them for reference when we later calculate the predicted base salary in our Shiny App Predictor.
+</p>
 
 ### Training the Linear Regression model
 
-To train our linear regression model, we first need to split the dataset into training and testing.
-
-```{r}
-set.seed(1)
-idx <- sample.int(n = nrow(lm_us_df), size = floor(0.8 * nrow(lm_us_df)), replace = FALSE)
-
-train <- lm_us_df[idx, ]
-test <- lm_us_df[-idx, ]
-
-dim(train)
-dim(test)
-```
-
-Fit the training dataset into the linear regression model.
-
-```{r}
-lm1 <- lm(basesalary ~ ., data = train)
-summary(lm1)
-```
-
-We can see that all the features are significant, this suggests that they are all important and contribute to the final prediction of base salary. So we now save these coefficient for our base salary predictor.
-
-```{r}
-lm_coef <- summary(lm1)$coefficients
-lm_coef_df <- data.frame(coef = rownames(lm_coef), value = lm_coef[, 1], std = lm_coef[, 2], lower = lm_coef[, 1] - lm_coef[, 2], upper = lm_coef[, 1] + lm_coef[, 2])
-write.csv(lm_coef_df, file = "project/lm_coef.csv", row.names = FALSE)
-```
-
-To evaluate model performance, we choose to calculate its RMSE.
-
-```{r}
-RMSE <- function(true_ratings, predicted_ratings){
+<p>
+Fitting the training dataset into the linear regression model, we saw see that all the features are significant, this suggests that they are all important and contribute to the final prediction of base salary. So we now save these coefficient for our base salary predictor.
+</p>
+<pre class="r"><code>lm1 &lt;- lm(basesalary ~ ., data = train)
+summary(lm1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = basesalary ~ ., data = train)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -136537  -22387   -2887   17936  706237 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)       69438       1756  39.543  &lt; 2e-16 ***
+## company           31005       1332  23.281  &lt; 2e-16 ***
+## title             46921       2199  21.340  &lt; 2e-16 ***
+## education         21241       1340  15.847  &lt; 2e-16 ***
+## race               8973       1501   5.976 2.34e-09 ***
+## experience       125164       2032  61.598  &lt; 2e-16 ***
+## yearsatcompany   -30720       3576  -8.589  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 39170 on 13562 degrees of freedom
+## Multiple R-squared:  0.3474, Adjusted R-squared:  0.3471 
+## F-statistic:  1203 on 6 and 13562 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>To evaluate model performance, we choose to calculate its RMSE.</p>
+<pre class="r"><code>RMSE &lt;- function(true_ratings, predicted_ratings){
     sqrt(mean((true_ratings - predicted_ratings)^2))
-}
-```
-
-The RMSE for the test dataset prediction is relatively large, however, considering the noise that naturally exists in this dataset, where people with the exact same features is likely to have different base salary, a large testing RMSE doesn't necessarily suggest that our model is performing bad, and we would need further analysis to fairly evaluate our model performance.
-
-```{r}
-lm_pred <- predict(lm1, newdata = test)
-lm_rmse <- RMSE(lm_pred, test$basesalary)
-lm_rmse
-```
-
-By comparing our model prediction and the actual base salary in the testing dataset, we can see that while not accurate, our model is able to capture the general trend of base salary level. This means that the prediction of out model can at least provide some reference for a person's potential base salary based on their input.
-
-```{r}
-lm_pred[1:10]
-test$basesalary[1:10]
-```
+}</code></pre>
+<p>The RMSE for the test dataset prediction is relatively large, however, considering the noise that naturally exists in this dataset, where people with the exact same features is likely to have different base salary, a large testing RMSE doesn’t necessarily suggest that our model is performing bad, and we would need further analysis to fairly evaluate our model performance.</p>
+<pre class="r"><code>lm_pred &lt;- predict(lm1, newdata = test)
+lm_rmse &lt;- RMSE(lm_pred, test$basesalary)
+lm_rmse</code></pre>
+<pre><code>## [1] 44100.67</code></pre>
+<p>By comparing our model prediction and the actual base salary in the testing dataset, we can see that while not accurate, our model is able to capture the general trend of base salary level. This means that the prediction of out model can at least provide some reference for a person’s potential base salary based on their input.</p>
+<pre class="r"><code>lm_pred[1:10]</code></pre>
+<pre><code>##        1       11       12       17       23       25       26       33 
+## 162817.7 123619.4 151725.9 169328.8 190601.6 163993.0 173833.8 205034.7 
+##       35       37 
+## 153926.6 134367.7</code></pre>
+<pre class="r"><code>test$basesalary[1:10]</code></pre>
+<pre><code>##  [1] 210000 112000 114000 153000 215000 160000 210000 150000 180000 165000</code></pre>
                    
 </details>
   
