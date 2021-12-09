@@ -324,9 +324,9 @@ lm_rmse</code></pre>
                    
 </details>
   
-
 <details>
 <summary><b>Optimizing Model Performance - One-hot Encoding and Regularization</b></summary>
+
 <br>
 <p>
 To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we prepared the one-hot encoded dataset, splited training and testing dataset, fitted a linear regression model using the one-hot encoded dataset, and evaluted model performance using RMSE on testing dataset. The RMSE is slightly lower than our previous linear regression model, which suggests that one-hot encoding do yield better results. However, since the difference is pretty small, we would still use the weight from our previous model for the ease of calculation. To explore the effect of regularization, we also fit the one-hot encoded data into a ridge regression model. However, the RMSE is higher for ridge regression, so we would not choose this model. 
