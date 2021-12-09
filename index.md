@@ -260,8 +260,7 @@ After ploting the base salary for different countries, we can see that there is 
 If we list the number of data we have for each countries, we can also see that the dataset is very imbalanced -- the majoriety of data comes from the US, where as other countries only contribute a very small amount of data, this can be a major problem for machine learning models, since there may not be enough data for the model to learn the representation for other countries properly. Therefore, we decided to filter only data from the US, and train the linear regression model as a base salary predictor for the US.
 </p>
 <img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/7_us_data_display.png" width="95%"/>  
-
-### Feature Engineering
+<H4>Feature Engineering</H4>
 <p>
 Next we would like to proceed to the feature engineering stage. Since we are building the linear regression model to use it as the base salary predictor for our Shiny App, we can only include features that we want users to input for their salary prediction. This means that we cannot use feature such as `dmaid` in the model since we don't know what this feature represent. So after looking at our EDA plots, we decided to choose 6 features: `title`, `company`, `yearsatcompany`, `yearsofexperience`, `Education`, and `Race` as our features. 
 </p>
