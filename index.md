@@ -100,7 +100,7 @@ Our logistic regression model yields an overall accuracy of 0.863 with 95% CI (0
 <summary><b>Data Manipulation for KNN, Decision Tree, and Random Forest</b></summary>
 <br>
 <p>
-In this section, we closely examined the dataset and applied dimension reduction (clustering), refined classification, data cleaning, further EDA of distribution, factorization where appropriate.
+In this section, we closely examined the dataset and applied dimension reduction (clustering), refined classification, data cleaning, regularization, further EDA of distribution, factorization etc. where appropriate.
 </p>
 
 </details>
@@ -244,10 +244,9 @@ Let's see the pattern of the strongest factor `dmaid`
 
 <details>
 <summary><b>Linear Regression</b></summary>
-
-
+  
 ### Explore Dataset
-
+  
 <p>  
 We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section. We further examined the dataset for the purpose of the linear model, and some of our considerations include:
 </p>
