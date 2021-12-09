@@ -281,7 +281,8 @@ Fitting the training dataset into the linear regression model, we saw see that a
 </p>
 <pre class="r"><code>lm1 &lt;- lm(basesalary ~ ., data = train)
 summary(lm1)</code></pre>
-<pre><code>## 
+<pre><code>
+## 
 ## Call:
 ## lm(formula = basesalary ~ ., data = train)
 ## 
