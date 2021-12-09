@@ -34,7 +34,8 @@ What about education?
 
 <details>
 <summary><u>Logistic</u> <b>Regression</b> (<i>click to expand</i>)</summary>
-
+<br>
+  
 Company and location information is excluded from our multinomial logistic regression model because they are categorical data with so many categories that they obscure our results. First, we fit a full model with all covariates we selected to see the general relationship pattern. We excluded the individuals with NA entries in either Education, Race, and gender to tidy up the data and to make trends more visible. Another reason we decide to drop these entries is that without them, we still have enough data (>20,000) to draw strong prediction power. 
 
 ```{r}
@@ -161,7 +162,11 @@ Now our dataset looks good and we can get started to build up our model!
 
 </details>
   
-### KNN
+
+<details>
+<summary><u>K-Nearest Neighbors</u> <b>(KNN)</b> (<i>click to expand</i>)</summary>
+<br>
+  
 ```{r}
 set.seed(42)
 x <- stratified(dataset, "y", 0.8, keep.rownames = TRUE)
@@ -179,8 +184,13 @@ knn_hat <- predict(knn_fit, newdata = test_set, type = "class")
 knn_p <- f_hat2 <- predict(knn_fit, newdata = test_set, k=12)[,2]
 confusionMatrix(data = knn_hat, reference = as.factor(test_set$y), positive = "1")
 ```
+                   
+</details>
+  
 
-### Decision Tree
+<details>
+<summary><u>Decision</u> <b>Tree</b> (<i>click to expand</i>)</summary>
+<br>
   
 We then apply a decision tree to visualize the prediction of the majority class of our outcome (whether one receives >$100k/yr base salary) based within the decision process partitioning based on a combination of variables.
   
@@ -220,10 +230,13 @@ rpart.plot(fit3)
 ```
   
 The third tree predicts the outcome by the same cutoffs in years of experience. The rest of the division lies in size category and title.
+                           
+</details>
   
+<details>
+<summary><u>Random</u> <b>Forest</b> (<i>click to expand</i>)</summary>
+<br>
   
-### Random Forest
-
 We build a random forest model with 3 features for each tree (~ sqrt level)
 ```{r}
 set.seed(42)
@@ -294,10 +307,13 @@ ggplot(rd_rs, aes(x=V1, y=V2, color=Class)) +
        y = "t-SNE2") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+                   
+</details>
 
-
-### Linear Regression
-
+<details>
+<summary><u>Linear</u> <b>Regression</b> (<i>click to expand</i>)</summary>
+<br>
+  
 We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section.
 
 
@@ -680,9 +696,13 @@ By comparing our model prediction and the actual base salary in the testing data
 lm_pred[1:10]
 test$basesalary[1:10]
 ```
+                   
+</details>
+  
 
-
-### Optimizing Model Performance - One-hot Encoding and Regularization
+<details>
+<summary><u>Optimizing Model Performance - </u> <b>One-hot Encoding and Regularization</b> (<i>click to expand</i>)</summary>
+<br>
 
 To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we first need to prepare the one-hot encoded dataset.
 
@@ -744,10 +764,22 @@ rmse_ridge <- RMSE(pred, y_test)
 rmse_ridge
 ```
 
-Overall, we think our first simple linear regression gives a reasonably good prediction on base salary, so we decided to use its weight to build our final salary predictor shiny app
+Overall, we think our first simple linear regression gives a reasonably good prediction on base salary, so we decided to use its weight to build our final salary predictor shiny app.
 
+</details>
+  
 
-## Shiny APP
+### Our Discovery
+
+[比较model]
+
+### Let's predict!
+
+We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predict their salaries.
+
+<details>
+<summary><u>Shiny</u> <b>APP</b> (<i>click to expand</i>)</summary>
+<br>
 
 We implemented 3 main features in our Shiny App, which are embedded in 3 seperate tabs.
 
@@ -882,14 +914,9 @@ shinyApp(ui = ui, server = server)
 
 ```
 
-### Our Discovery
-
-[比较model]
-
-### Let's predict!
-
-We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predict their salaries.
-
+</details>
+  
+  
 Demo:
 
 [demo]
