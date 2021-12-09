@@ -783,7 +783,7 @@ Overall, we think our first simple linear regression gives a reasonably good pre
 We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predict their salaries.
 
 <details>
-<summary><u>Shiny</u> <b>APP</b> (<i>click to expand</i>)</summary>
+<summary><u>Shiny</u> <b>APP</b> (<i>click to expand</i>)</summary><p>
 <br>
 
 We implemented 3 main features in our Shiny App, which are embedded in 3 seperate tabs.
@@ -919,7 +919,7 @@ shinyApp(ui = ui, server = server)
 
 ```
 
-</details>
+</p></details>
   
   
 Demo:
