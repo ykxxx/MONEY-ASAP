@@ -20,15 +20,15 @@ The original dataset contains 62642 records. We filtered the redundant features 
 
 We wanted to see the base salary of different titles.
 
-<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_title.png" width="100%"/>  
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_title.png" width="95%"/>  
 
 Does race matter?
 
-<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_race.png" width="100%"/>  
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_race.png" width="95%"/>  
 
 What about education?
 
-<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="100%"/>  
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/basesalary_edu.png" width="95%"/>  
 
 ## Final Analysis
 <p>
@@ -159,122 +159,87 @@ confusionMatrix(data = knn_hat, reference = as.factor(test_set$y), positive = &q
 <summary><b>Decision Tree</b></summary>
 <br>
   
-We then apply a decision tree to visualize the prediction of the majority class of our outcome (whether one receives >$100k/yr base salary) based within the decision process partitioning based on a combination of variables.
-  
-We selected a set of covariates that could potentially be predictive of the outcome variable. After combinatory attempts to construct the tree, three combinations resulted in clear partition of majority class in the outcome variable:
-  
-```{r}
-# Create dataset for the trees
-dataset_dt <- cleaned_df %>% select(c("title", "yearsofexperience", "yearsatcompany","gender","cityid","dmaid",
-                                  "Race","Education", "y","size_category","state","country","employee_num"))
-sapply(dataset_dt, class)
-
-# Decision Tree using cityid (proxy for location), years of experience, and years at company
-dt_df1 <- dataset_dt %>% dplyr::select(., y, cityid, yearsofexperience, yearsatcompany)
-fit1 <- rpart(as.factor(y) ~ ., data = dt_df1)
-
-rpart.plot(fit1)
-```
-  
+<p>
+We then apply several decision trees to visualize the prediction of the majority class of our outcome (whether one receives >$100k/yr base salary) based within the decision process partitioning based on a combination of variables. We selected a set of covariates that could potentially be predictive of the outcome variable. After combinatory attempts to construct reasonable decision processes, three combinations resulted in clear partition of majority class in the outcome variable:
+</p>
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/4_dec_tree_1.png" width="95%"/>  
+<p>
 In the first tree, the outcome is partitioned by years of experience < 11, city id as a proxy for the importance of locations, and years of experience < 5.
-  
-```{r}
-# Next, Decision Tree using years of experience, and employee number
-dt_df2 <- dataset_dt %>% dplyr::select(.,y, yearsofexperience, employee_num)
-fit2 <- rpart(as.factor(y) ~ ., data = dt_df2)
-
-rpart.plot(fit2)
-```
-  
+</p>
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/4_dec_tree_2.png" width="95%"/>  
+<p>
 In the second decision tree, if years of experience > 5, we predict the outcome to be >$100k/yr base salary. If not, if employee number of the company is larger than 506, the outcome category is also predicted to be >\$100k/yr base salary. The next divisions are made by years of experience > 3 and emplyee number > 136.
-  
-```{r}
-# Thirdly, Decision Tree using title, company size category, and years of experience
-dt_df3 <- dataset_dt %>% dplyr::select(.,y, title, size_category, yearsofexperience)
-fit3 <- rpart(as.factor(y) ~ ., data = dt_df3)
-
-rpart.plot(fit3)
-```
-  
+</p>
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/4_dec_tree_3.png" width="95%"/>  
+<p>
 The third tree predicts the outcome by the same cutoffs in years of experience. The rest of the division lies in size category and title.
-                           
+</p>                       
 </details>
   
 <details>
 <summary><b>Random Forest</b></summary>
 <br>
-  
+<p> 
 We build a random forest model with 3 features for each tree (~ sqrt level)
-```{r}
-set.seed(42)
-rf_fit <- randomForest(y ~ .-state-country, data = train_set, mtry = 3)
-rf_hat <- predict(rf_fit, newdata = test_set, type = "class")
-rf_p <- predict(rf_fit, newdata = test_set, type = "prob")[,2]
-confusionMatrix(data = rf_hat, reference = as.factor(test_set$y), positive = "1")
-```
-
-Now, check the feature importance
-
-```{r}
-rf_im <- importance(rf_fit)
-as.matrix(rf_im[order(-rf_im[,1]),])
-```
-
-
-### Visualization
-
-Here, we do a visualization using tSNE.
-
-First, to reduce computational burden, we randomly sample 5000 points for visualization. At the same time, since `cityid` and `dmaid` are two strongest factors, we only keep `dmaid` to avoid overfitting.
-
-```{r}
-data_sample0 <- dataset[sample(1:nrow(dataset), size = 5000),]
-data_sample <- data_sample0[ , -which(colnames(data_sample0) %in% c("cityid"))]
-```
-
-```{r}
-# Obtain the value of 2-D tSNE embedding
-tsne_out <- Rtsne(
- data_sample,
- dims = 2,
- pca = TRUE,
- perplexity = 100,
- check_duplicates = FALSE
-)
-```
-
-Now, let's see the pattern of different labels
-
-```{r}
-rd_rs <- as.data.frame(tsne_out$Y)
-rd_rs$Class<- data_sample$y
-# first obtain the color
-length(unique(rd_rs$Class))
-mainPalette <- rainbow(9)
-ggplot(rd_rs, aes(x=V1, y=V2, color=Class)) +
-  geom_point(size=1.25) +
-  labs(title = "t-SNE",
-       x = "t-SNE1",
-       y = "t-SNE2") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
+</p>
+<pre class="r"><code>set.seed(42)
+rf_fit &lt;- randomForest(y ~ .-state-country, data = train_set, mtry = 3)
+rf_hat &lt;- predict(rf_fit, newdata = test_set, type = &quot;class&quot;)
+rf_p &lt;- predict(rf_fit, newdata = test_set, type = &quot;prob&quot;)[,2]
+confusionMatrix(data = rf_hat, reference = as.factor(test_set$y), positive = &quot;1&quot;)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    0    1
+##          0  870  162
+##          1  233 3053
+##                                          
+##                Accuracy : 0.9085         
+##                  95% CI : (0.8995, 0.917)
+##     No Information Rate : 0.7446         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.7543         
+##                                          
+##  Mcnemar&#39;s Test P-Value : 0.0004282      
+##                                          
+##             Sensitivity : 0.9496         
+##             Specificity : 0.7888         
+##          Pos Pred Value : 0.9291         
+##          Neg Pred Value : 0.8430         
+##              Prevalence : 0.7446         
+##          Detection Rate : 0.7070         
+##    Detection Prevalence : 0.7610         
+##       Balanced Accuracy : 0.8692         
+##                                          
+##        &#39;Positive&#39; Class : 1              
+## </code></pre>
+<p>Now, check the feature importance</p>
+<pre class="r"><code>rf_im &lt;- importance(rf_fit)
+as.matrix(rf_im[order(-rf_im[,1]),])</code></pre>
+<pre><code>##                         [,1]
+## dmaid             2013.06633
+## cityid            1501.71226
+## yearsofexperience  853.07254
+## title              539.38443
+## size_category      398.53391
+## yearsatcompany     331.52472
+## Race               280.51223
+## Education          209.93064
+## gender              84.32126</code></pre>
+</details>
+<details>
+<summary><b>tSNE Visualization</b></summary>
+<br>
+<p>
+Here, we do a visualization using tSNE. First, to reduce computational burden, we randomly sample 5000 points for visualization. At the same time, since `cityid` and `dmaid` are two strongest factors, we only keep `dmaid` to avoid overfitting. let's see the pattern of different labels:
+</p>
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/6_tSNE_1.png" width="95%"/>  
+<p>
 Let's see the pattern of the strongest factor `dmaid`
+</p>               
+<img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/6_tSNE_2.png" width="95%"/>  
 
-```{r}
-rd_rs <- as.data.frame(tsne_out$Y)
-rd_rs$Class<- data_sample$dmaid
-# first obtain the color
-length(unique(rd_rs$Class))
-mainPalette <- rainbow(9)
-ggplot(rd_rs, aes(x=V1, y=V2, color=Class)) +
-  geom_point(size=1.25) +
-  labs(title = "t-SNE",
-       x = "t-SNE1",
-       y = "t-SNE2") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-                   
 </details>
 
 <details>
