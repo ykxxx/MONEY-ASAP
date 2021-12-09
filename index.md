@@ -244,10 +244,8 @@ Let's see the pattern of the strongest factor `dmaid`
 
 <details>
 <summary><b>Linear Regression</b></summary>
-
-
-### Explore Dataset
-
+<br>
+<H4>Explore Dataset</H4>
 <p>  
 We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section. We further examined the dataset for the purpose of the linear model, and some of our considerations include:
 </p>
@@ -276,9 +274,7 @@ To do the feature engineering for `title`, we plot the average base salary for e
 <p>
 For the feature `company`, we know that this dataset includes data from 1633 distinct conpaies, so we think it would probably be better it we convert `company` into new new feature with less levels. To do this, we first take a look into how the `company` feature distribution looks like. After visual examination and summaries of the data, we see that the number of appearance a company has in this dataset, `n`, actually highly correlates with the actual company size. For instance, the major tech companies like Amazon, Micorsoft, Google, Facebook, and Apple ranks top 5 in the tabke above, and all has over 1000 data entries. So we decided to use this `n` create a new feature called `company_size` and use this feature for our model training. After the above was completed for our selected features, we joined the data and exported the cleaned dataframe into a .csv file and also save all the encoding data so that we can use them for reference when we later calculate the predicted base salary in our Shiny App Predictor.
 </p>
-
-### Training the Linear Regression model
-
+<H4>Training the Linear Regression model</H4>
 <p>
 Fitting the training dataset into the linear regression model, we saw see that all the features are significant, this suggests that they are all important and contribute to the final prediction of base salary. So we now save these coefficient for our base salary predictor.
 </p>
