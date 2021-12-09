@@ -156,7 +156,7 @@ confusionMatrix(data = knn_hat, reference = as.factor(test_set$y), positive = &q
   
 
 <details>
-<summary><u>Decision</u> <b>Tree</b> (<i>click to expand</i>)</summary>
+<summary><b>Decision Tree</b></summary>
 <br>
   
 We then apply a decision tree to visualize the prediction of the majority class of our outcome (whether one receives >$100k/yr base salary) based within the decision process partitioning based on a combination of variables.
@@ -201,7 +201,7 @@ The third tree predicts the outcome by the same cutoffs in years of experience. 
 </details>
   
 <details>
-<summary><u>Random</u> <b>Forest</b> (<i>click to expand</i>)</summary>
+<summary><b>Random Forest</b></summary>
 <br>
   
 We build a random forest model with 3 features for each tree (~ sqrt level)
@@ -278,7 +278,7 @@ ggplot(rd_rs, aes(x=V1, y=V2, color=Class)) +
 </details>
 
 <details>
-<summary><u>Linear</u> <b>Regression</b> (<i>click to expand</i>)</summary>
+<summary><b>Linear Regression</b></summary>
 <br>
   
 We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section.
@@ -668,7 +668,7 @@ test$basesalary[1:10]
   
 
 <details>
-<summary><u>Optimizing Model Performance - </u> <b>One-hot Encoding and Regularization</b> (<i>click to expand</i>)</summary>
+<summary><b>Optimizing Model Performance - One-hot Encoding and Regularization</b></summary>
 <br>
 
 To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we first need to prepare the one-hot encoded dataset.
@@ -747,139 +747,135 @@ We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predi
 <details>
 <summary><b>Shiny APP Implementation</b> (<i>Click to Expand</i>)</summary><p>
 <br>
-
-We created 3 main features in our Shiny App, which are embedded in 3 seperate tabs.
-
-### Estimator
-
-User can input their information for each of the 5 features in the drop-down bar, and our salary estimator will return a table of salary estimation as well as the confidence intercal for each of the 15 titles.
-
-### Boxplot
-
-User can view the boxplot of base salary distribution for each of the 6 features
-
-### Salary distribution plot
-
-User can select a base salary upper bound, and view the distribution of salary.
-
-```{r}
-library(shiny)
+<p>We implemented 3 main features in our Shiny App, which are embedded in 3 seperate tabs.</p>
+<div id="estimator" class="section level4">
+<h4>Estimator</h4>
+<p>User can input their information for each of the 5 features in the drop-down bar, and our salary estimator will return a table of salary estimation as well as the confidence intercal for each of the 15 titles.</p>
+</div>
+<div id="boxplot" class="section level4">
+<h4>Boxplot</h4>
+<p>User can view the boxplot of base salary distribution for each of the 6 features</p>
+</div>
+<div id="salary-distribution-plot" class="section level4">
+<h4>Salary distribution plot</h4>
+<p>User can select a base salary upper bound, and view the distribution of salary.</p>
+<pre class="r"><code>library(shiny)
 library(tidyverse)
 library(ggplot2)
 
 # library(rsconnect)
-# rsconnect::deployApp('/Users/kexinyang/Desktop/BST 260/Project/notebook.Rmd')
+# rsconnect::deployApp(&#39;/Users/kexinyang/Desktop/BST 260/Project/notebook.Rmd&#39;)
 
-df <- read.csv("project/clean_us_salary_data.csv")
-coef <- read.csv("project/lm_coef.csv")
-race_encode <- read.csv("project/race_encode.csv")
-company_encode <- read.csv("project/company_encode.csv")
-education_encode <- read.csv("project/education_encode.csv")
-title_encode <- read.csv("project/title_encode.csv")
-experience_encode <- read.csv("project/experience_encode.csv")
-yearsatcompany_encode <- read.csv("project/yearsatcompany_encode.csv")
+df &lt;- read.csv(&quot;project/clean_us_salary_data.csv&quot;)
+coef &lt;- read.csv(&quot;project/lm_coef.csv&quot;)
+race_encode &lt;- read.csv(&quot;project/race_encode.csv&quot;)
+company_encode &lt;- read.csv(&quot;project/company_encode.csv&quot;)
+education_encode &lt;- read.csv(&quot;project/education_encode.csv&quot;)
+title_encode &lt;- read.csv(&quot;project/title_encode.csv&quot;)
+experience_encode &lt;- read.csv(&quot;project/experience_encode.csv&quot;)
+yearsatcompany_encode &lt;- read.csv(&quot;project/yearsatcompany_encode.csv&quot;)
 
-ui <- fluidPage(
+ui &lt;- fluidPage(
     
-    theme = shinythemes::shinytheme("flatly"),
+    theme = shinythemes::shinytheme(&quot;flatly&quot;),
 
-    titlePanel("Salary Estimator :)"),
+    titlePanel(&quot;Salary Estimator :)&quot;),
     
     tabsetPanel(
-        tabPanel("Estimator",
+        tabPanel(&quot;Estimator&quot;,
                  sidebarLayout(
-                     sidebarPanel("Choose your features:", 
-                        fluidRow(selectInput("race", label = "Select a race", selected = "Asian",
+                     sidebarPanel(&quot;Choose your features:&quot;, 
+                        fluidRow(selectInput(&quot;race&quot;, label = &quot;Select a race&quot;, selected = &quot;Asian&quot;,
                                            choices = race_encode$x)),
-                        fluidRow(selectInput("company", label = "Select a company", selected = "Amazon",
+                        fluidRow(selectInput(&quot;company&quot;, label = &quot;Select a company&quot;, selected = &quot;Amazon&quot;,
                                            choices = company_encode$x)),
-                        fluidRow(selectInput("education", label = "Select a education",
+                        fluidRow(selectInput(&quot;education&quot;, label = &quot;Select a education&quot;,
                                            choices = education_encode$x)),
-                        fluidRow(selectInput("yearsofexperience", label = "Select a years of experience", selected = "1",
+                        fluidRow(selectInput(&quot;yearsofexperience&quot;, label = &quot;Select a years of experience&quot;, selected = &quot;1&quot;,
                                            choices = experience_encode$x)),
-                        fluidRow(selectInput("yearsatcompany", label = "Select a years at company", selected = "0",
+                        fluidRow(selectInput(&quot;yearsatcompany&quot;, label = &quot;Select a years at company&quot;, selected = &quot;0&quot;,
                                            choices = yearsatcompany_encode$x))
                      ),
                      mainPanel(
-                         tableOutput("estimated_salary")
+                         tableOutput(&quot;estimated_salary&quot;)
                      )
                  ),
                  ),
-        tabPanel("BoxPlot",
+        tabPanel(&quot;BoxPlot&quot;,
                  fluidRow(
-                     column(6, selectInput("x", label = "Select a feature to visualize",
-                                         choices = as.list(c("Race", "title", "yearsofexperience", "yearsatcompany", "Education"))))
+                     column(6, selectInput(&quot;x&quot;, label = &quot;Select a feature to visualize&quot;,
+                                         choices = as.list(c(&quot;Race&quot;, &quot;title&quot;, &quot;yearsofexperience&quot;, &quot;yearsatcompany&quot;, &quot;Education&quot;))))
                  ),
                  fluidRow(
-                     plotOutput("boxplot")
+                     plotOutput(&quot;boxplot&quot;)
                  )
         ),
-        tabPanel("Salary Distribution Plot",
+        tabPanel(&quot;Salary Distribution Plot&quot;,
                  fluidRow(
-                     column(12, sliderInput("range", "Salary Range:", min = 10000, max = 2000000, value = 500000,
-                                            step = 10000, sep = "", ticks = FALSE, animate = TRUE)
+                     column(12, sliderInput(&quot;range&quot;, &quot;Salary Range:&quot;, min = 10000, max = 2000000, value = 500000,
+                                            step = 10000, sep = &quot;&quot;, ticks = FALSE, animate = TRUE)
                      )
                  ),
                  fluidRow(
-                     plotOutput("distributionplot")
+                     plotOutput(&quot;distributionplot&quot;)
                  )
         )
     )
     
-)
-
-server <- function(input, output) {
+)</code></pre>
+<pre><code>## Warning: The select input &quot;company&quot; contains a large number of options; consider
+## using server-side selectize for massively improved performance. See the Details
+## section of the ?selectizeInput help topic.</code></pre>
+<pre class="r"><code>server &lt;- function(input, output) {
     
     output$estimated_salary = renderTable({
         
-        salary_df <- data.frame("Title" = character(), "Salary Estimate" = numeric(), "Confidence interval" = character())
+        salary_df &lt;- data.frame(&quot;Title&quot; = character(), &quot;Salary Estimate&quot; = numeric(), &quot;Confidence interval&quot; = character())
         for(i in 1:length(title_encode$x)) {
-            title <- title_encode[i,]$x
-            title_idx <- title_encode[i,]$y
+            title &lt;- title_encode[i,]$x
+            title_idx &lt;- title_encode[i,]$y
         
-            race_idx <- filter(race_encode, x == input$race)$y
-            education_idx <- filter(education_encode, x == input$education)$y
-            company_idx <- filter(company_encode, x == input$company)$y
-            experience_idx <- filter(experience_encode, x == input$yearsofexperience)$y
-            yearsatcompany_idx <- filter(yearsatcompany_encode, x == input$yearsatcompany)$y
+            race_idx &lt;- filter(race_encode, x == input$race)$y
+            education_idx &lt;- filter(education_encode, x == input$education)$y
+            company_idx &lt;- filter(company_encode, x == input$company)$y
+            experience_idx &lt;- filter(experience_encode, x == input$yearsofexperience)$y
+            yearsatcompany_idx &lt;- filter(yearsatcompany_encode, x == input$yearsatcompany)$y
             
-            salary <- race_idx * coef[coef == "race", ]$value + company_idx * coef[coef == "company", ]$value + education_idx * coef[coef == "education", ]$value + title_idx * coef[coef == "title", ]$value + experience_idx * coef[coef == "experience", ]$value + yearsatcompany_idx * coef[coef == "yearsatcompany", ]$value + coef[coef == "(Intercept)", ]$value
-            salary_lower <- race_idx * coef[coef == "race", ]$lower + company_idx * coef[coef == "company", ]$lower + education_idx * coef[coef == "education", ]$lower + title_idx * coef[coef == "title", ]$lower + experience_idx * coef[coef == "experience", ]$lower + yearsatcompany_idx * coef[coef == "yearsatcompany", ]$lower + coef[coef == "(Intercept)", ]$lower
-            salary_upper <- race_idx * coef[coef == "race", ]$upper + company_idx * coef[coef == "company", ]$upper + education_idx * coef[coef == "education", ]$upper + title_idx * coef[coef == "title", ]$upper + experience_idx * coef[coef == "experience", ]$upper + yearsatcompany_idx * coef[coef == "yearsatcompany", ]$upper + coef[coef == "(Intercept)", ]$upper
+            salary &lt;- race_idx * coef[coef == &quot;race&quot;, ]$value + company_idx * coef[coef == &quot;company&quot;, ]$value + education_idx * coef[coef == &quot;education&quot;, ]$value + title_idx * coef[coef == &quot;title&quot;, ]$value + experience_idx * coef[coef == &quot;experience&quot;, ]$value + yearsatcompany_idx * coef[coef == &quot;yearsatcompany&quot;, ]$value + coef[coef == &quot;(Intercept)&quot;, ]$value
+            salary_lower &lt;- race_idx * coef[coef == &quot;race&quot;, ]$lower + company_idx * coef[coef == &quot;company&quot;, ]$lower + education_idx * coef[coef == &quot;education&quot;, ]$lower + title_idx * coef[coef == &quot;title&quot;, ]$lower + experience_idx * coef[coef == &quot;experience&quot;, ]$lower + yearsatcompany_idx * coef[coef == &quot;yearsatcompany&quot;, ]$lower + coef[coef == &quot;(Intercept)&quot;, ]$lower
+            salary_upper &lt;- race_idx * coef[coef == &quot;race&quot;, ]$upper + company_idx * coef[coef == &quot;company&quot;, ]$upper + education_idx * coef[coef == &quot;education&quot;, ]$upper + title_idx * coef[coef == &quot;title&quot;, ]$upper + experience_idx * coef[coef == &quot;experience&quot;, ]$upper + yearsatcompany_idx * coef[coef == &quot;yearsatcompany&quot;, ]$upper + coef[coef == &quot;(Intercept)&quot;, ]$upper
             
-            salary_df <- rbind(salary_df, c(title, round(salary), paste0(round(salary_lower), " - ", round(salary_upper))))
+            salary_df &lt;- rbind(salary_df, c(title, round(salary), paste0(round(salary_lower), &quot; - &quot;, round(salary_upper))))
         }
-        colnames(salary_df) <- c("Title", "Salary Estimate", "Confidence Interval")
+        colnames(salary_df) &lt;- c(&quot;Title&quot;, &quot;Salary Estimate&quot;, &quot;Confidence Interval&quot;)
         salary_df
     })
     
     output$boxplot = renderPlot({
-        df$x <- df[, input$x]
-        df %>% ggplot(aes(x = as.factor(x), y = basesalary)) +
+        df$x &lt;- df[, input$x]
+        df %&gt;% ggplot(aes(x = as.factor(x), y = basesalary)) +
             geom_boxplot() +
-            xlab(sprintf("%s", input$x)) +
-            ylab("Base salary") +
-            ggtitle(sprintf("Distribution of base salary for %s", input$x)) +
+            xlab(sprintf(&quot;%s&quot;, input$x)) +
+            ylab(&quot;Base salary&quot;) +
+            ggtitle(sprintf(&quot;Distribution of base salary for %s&quot;, input$x)) +
             theme_minimal() +
             theme(plot.title=element_text(hjust=0.5))
     })
     
     output$distributionplot = renderPlot({
-        df %>%
-            filter(basesalary <= as.numeric(input$range)) %>%
+        df %&gt;%
+            filter(basesalary &lt;= as.numeric(input$range)) %&gt;%
             ggplot(aes(basesalary)) +
             geom_histogram() +
-            ggtitle(sprintf("Distribution for base salary in %s", input$country2)) +
-            ylab(sprintf("Base salary")) +
+            ggtitle(sprintf(&quot;Distribution for base salary in %s&quot;, input$country2)) +
+            ylab(sprintf(&quot;Base salary&quot;)) +
             theme_minimal() +
             theme(plot.title=element_text(hjust=0.5))
     })
 }
 
 # Run the application 
-shinyApp(ui = ui, server = server)
-
-```
+# shinyApp(ui = ui, server = server)</code></pre>
 
 </p></details>
   
