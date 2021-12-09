@@ -100,7 +100,7 @@ Our logistic regression model yields an overall accuracy of 0.863 with 95% CI (0
 <summary><b>Data Manipulation for KNN, Decision Tree, and Random Forest</b></summary>
 <br>
 <p>
-In this section, we closely examined the dataset and applied dimension reduction (clustering), refined classification, data cleaning, regularization, further EDA of distribution, factorization etc. where appropriate.
+In this section, we closely examined the dataset and applied dimension reduction (clustering), refined classification, data cleaning, further EDA of distribution, factorization where appropriate.
 </p>
 
 </details>
@@ -158,6 +158,7 @@ confusionMatrix(data = knn_hat, reference = as.factor(test_set$y), positive = &q
 <details>
 <summary><b>Decision Tree</b></summary>
 <br>
+  
 <p>
 We then apply several decision trees to visualize the prediction of the majority class of our outcome (whether one receives >$100k/yr base salary) based within the decision process partitioning based on a combination of variables. We selected a set of covariates that could potentially be predictive of the outcome variable. After combinatory attempts to construct reasonable decision processes, three combinations resulted in clear partition of majority class in the outcome variable:
 </p>
@@ -243,9 +244,10 @@ Let's see the pattern of the strongest factor `dmaid`
 
 <details>
 <summary><b>Linear Regression</b></summary>
-<br>
-<div id="Explore Dataset" class="section level4">
-<h4>Explore Dataset</h4>
+
+
+### Explore Dataset
+
 <p>  
 We also wanted to fit the Dataset into a linear regression model so that we will be able to make predictions on base salary given information about a person's relevant features. So in this analysis, we explored the performance of different feature engineering and encoding methods, as well as the prediction performance of several linear regression model. We will choose the best model to make our base salary predictor in the next section. We further examined the dataset for the purpose of the linear model, and some of our considerations include:
 </p>
@@ -260,8 +262,8 @@ After ploting the base salary for different countries, we can see that there is 
 If we list the number of data we have for each countries, we can also see that the dataset is very imbalanced -- the majoriety of data comes from the US, where as other countries only contribute a very small amount of data, this can be a major problem for machine learning models, since there may not be enough data for the model to learn the representation for other countries properly. Therefore, we decided to filter only data from the US, and train the linear regression model as a base salary predictor for the US.
 </p>
 <img src="https://github.com/Nancy-dvZhang/MONEY-ASAP/raw/main/images/7_us_data_display.png" width="95%"/>  
-<div id="Feature Engineering" class="section level4">
-<h4>Feature Engineering</h4>
+
+### Feature Engineering
 <p>
 Next we would like to proceed to the feature engineering stage. Since we are building the linear regression model to use it as the base salary predictor for our Shiny App, we can only include features that we want users to input for their salary prediction. This means that we cannot use feature such as `dmaid` in the model since we don't know what this feature represent. So after looking at our EDA plots, we decided to choose 6 features: `title`, `company`, `yearsatcompany`, `yearsofexperience`, `Education`, and `Race` as our features. 
 </p>
@@ -274,15 +276,15 @@ To do the feature engineering for `title`, we plot the average base salary for e
 <p>
 For the feature `company`, we know that this dataset includes data from 1633 distinct conpaies, so we think it would probably be better it we convert `company` into new new feature with less levels. To do this, we first take a look into how the `company` feature distribution looks like. After visual examination and summaries of the data, we see that the number of appearance a company has in this dataset, `n`, actually highly correlates with the actual company size. For instance, the major tech companies like Amazon, Micorsoft, Google, Facebook, and Apple ranks top 5 in the tabke above, and all has over 1000 data entries. So we decided to use this `n` create a new feature called `company_size` and use this feature for our model training. After the above was completed for our selected features, we joined the data and exported the cleaned dataframe into a .csv file and also save all the encoding data so that we can use them for reference when we later calculate the predicted base salary in our Shiny App Predictor.
 </p>
-<div id="Training The Linear Regression Model" class="section level4">
-<h4>Training The Linear Regression Model</h4>
+
+### Training the Linear Regression model
+
 <p>
 Fitting the training dataset into the linear regression model, we saw see that all the features are significant, this suggests that they are all important and contribute to the final prediction of base salary. So we now save these coefficient for our base salary predictor.
 </p>
 <pre class="r"><code>lm1 &lt;- lm(basesalary ~ ., data = train)
 summary(lm1)</code></pre>
-<pre><code>
-## 
+<pre><code>## 
 ## Call:
 ## lm(formula = basesalary ~ ., data = train)
 ## 
@@ -325,6 +327,7 @@ lm_rmse</code></pre>
                    
 </details>
   
+
 <details>
 <summary><b>Optimizing Model Performance - One-hot Encoding and Regularization</b></summary>
 <br>
