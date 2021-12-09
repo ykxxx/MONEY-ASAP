@@ -32,8 +32,7 @@ What about education?
 
 ## The Analysis
 
-<details>
-  <summary>Logistic Regression</summary>
+<details><summary>**Logistic Regression**</summary><p>
 
 Company and location information is excluded from our multinomial logistic regression model because they are categorical data with so many categories that they obscure our results. First, we fit a full model with all covariates we selected to see the general relationship pattern. We excluded the individuals with NA entries in either Education, Race, and gender to tidy up the data and to make trends more visible. Another reason we decide to drop these entries is that without them, we still have enough data (>20,000) to draw strong prediction power. 
 
@@ -159,7 +158,7 @@ sapply(dataset, "class")
 ```
 Now our dataset looks good and we can get started to build up our model!
 
-</details>
+</p></details>
   
 ### KNN
 ```{r}
