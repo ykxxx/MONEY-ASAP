@@ -48,7 +48,7 @@ summary(mod_logistic_whole)</code></pre>
 <p>
 From our full model, we see that all of our covariates provide helpful information with as least one category being significant except gender. We then proceed to bidirectional step-wise selection procedure to further feature selection and applied complete case analysis (CCA) where there is data missingness in the category missing completely at random (MCAR). Upon completion of feature selection and running the model again with the final set of covariates, we generated a confusion matrix as follows:
 </p>
-```
+
 <p>
 <pre class="r"><code>set.seed(1)
 x &lt;- stratified(df_2, &quot;y&quot;, 0.8, keep.rownames = TRUE)
