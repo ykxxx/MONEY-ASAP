@@ -329,6 +329,13 @@ lm_rmse</code></pre>
 <p>
 To better evaluate our previous model performance, we also want to explore whether we can optimize the previous simple Linear Regression model through one-hot encoding and regularization. To do this, we prepared the one-hot encoded dataset, splited training and testing dataset, fitted a linear regression model using the one-hot encoded dataset, and evaluted model performance using RMSE on testing dataset. The RMSE is slightly lower than our previous linear regression model, which suggests that one-hot encoding do yield better results. However, since the difference is pretty small, we would still use the weight from our previous model for the ease of calculation. To explore the effect of regularization, we also fit the one-hot encoded data into a ridge regression model. However, the RMSE is higher for ridge regression, so we would not choose this model. 
 </p>
+  
+Model | RMSD
+--- | ---
+Simple Linear Regression | 44100.67
+Linear Regression with One-hot Encoding | 43922.65
+Ridge Regression with One-hot Encoding | 56397
+ 
 <p>
 Overall, our first simple linear regression exhibits a reasonably good prediction on base salary, so we decided to use its weight to build our final salary predictor shiny app.
 </p>
@@ -365,123 +372,180 @@ We built a [shiny app](https://ykxxx.shinyapps.io/predictor/) for users to predi
 <div id="salary-distribution-plot" class="section level4">
 <h4>Salary distribution plot</h4>
 <p>User can select a base salary upper bound, and view the distribution of salary.</p>
-<pre class="r"><code>library(shiny)
+<pre class="r"><code>
+library(shiny)
 library(tidyverse)
 library(ggplot2)
+library(usmap)
+library(ggplot2)
+library(stringr)
 
-# library(rsconnect)
-# rsconnect::deployApp(&#39;/Users/kexinyang/Desktop/BST 260/Project/notebook.Rmd&#39;)
+df <- read.csv("project/clean_us_salary_data.csv")
+coef <- read.csv("project/lm_coef.csv")
+race_encode <- read.csv("project/race_encode.csv")
+company_encode <- read.csv("project/company_encode.csv")
+education_encode <- read.csv("project/education_encode.csv")
+title_encode <- read.csv("project/title_encode.csv")
+experience_encode <- read.csv("project/experience_encode.csv")
+yearsatcompany_encode <- read.csv("project/yearsatcompany_encode.csv")
 
-df &lt;- read.csv(&quot;project/clean_us_salary_data.csv&quot;)
-coef &lt;- read.csv(&quot;project/lm_coef.csv&quot;)
-race_encode &lt;- read.csv(&quot;project/race_encode.csv&quot;)
-company_encode &lt;- read.csv(&quot;project/company_encode.csv&quot;)
-education_encode &lt;- read.csv(&quot;project/education_encode.csv&quot;)
-title_encode &lt;- read.csv(&quot;project/title_encode.csv&quot;)
-experience_encode &lt;- read.csv(&quot;project/experience_encode.csv&quot;)
-yearsatcompany_encode &lt;- read.csv(&quot;project/yearsatcompany_encode.csv&quot;)
-
-ui &lt;- fluidPage(
+ui <- fluidPage(
     
-    theme = shinythemes::shinytheme(&quot;flatly&quot;),
+    theme = shinythemes::shinytheme("flatly"),
 
-    titlePanel(&quot;Salary Estimator :)&quot;),
+    titlePanel("Salary Estimator :)"),
     
     tabsetPanel(
-        tabPanel(&quot;Estimator&quot;,
+        tabPanel("Estimator",
                  sidebarLayout(
-                     sidebarPanel(&quot;Choose your features:&quot;, 
-                        fluidRow(selectInput(&quot;race&quot;, label = &quot;Select a race&quot;, selected = &quot;Asian&quot;,
+                     sidebarPanel("Choose your features:", 
+                        fluidRow(selectInput("race", label = "Select a race", selected = "Asian",
                                            choices = race_encode$x)),
-                        fluidRow(selectInput(&quot;company&quot;, label = &quot;Select a company&quot;, selected = &quot;Amazon&quot;,
+                        fluidRow(selectInput("company", label = "Select a company", selected = "Amazon",
                                            choices = company_encode$x)),
-                        fluidRow(selectInput(&quot;education&quot;, label = &quot;Select a education&quot;,
+                        fluidRow(selectInput("education", label = "Select a education",
                                            choices = education_encode$x)),
-                        fluidRow(selectInput(&quot;yearsofexperience&quot;, label = &quot;Select a years of experience&quot;, selected = &quot;1&quot;,
+                        fluidRow(selectInput("yearsofexperience", label = "Select a years of experience", selected = "1",
                                            choices = experience_encode$x)),
-                        fluidRow(selectInput(&quot;yearsatcompany&quot;, label = &quot;Select a years at company&quot;, selected = &quot;0&quot;,
+                        fluidRow(selectInput("yearsatcompany", label = "Select a years at company", selected = "0",
                                            choices = yearsatcompany_encode$x))
                      ),
                      mainPanel(
-                         tableOutput(&quot;estimated_salary&quot;)
+                         tableOutput("estimated_salary")
                      )
                  ),
                  ),
-        tabPanel(&quot;BoxPlot&quot;,
+        tabPanel("Geo Plot",
+                 sidebarLayout(
+                     sidebarPanel(
+                         fluidRow(selectInput("title_g", label = "Select a title", selected = "All", choices = c("All", title_encode$x))),
+                        fluidRow(selectInput("education_g", label = "Select a education", selected = "All", choices = c("All", education_encode$x))),
+                        fluidRow(selectInput("experience_g", label = "Select a years of experience", selected = "All", choices = c("All", experience_encode$x))),
+                        fluidRow(selectInput("years_g", label = "Select a years at company", selected = "All", choices = c("All", yearsatcompany_encode$x))
+                     )
+                ),
+                 mainPanel(
+                     plotOutput("geoplot")
+                 )
+            )
+        ),
+        tabPanel("BoxPlot",
                  fluidRow(
-                     column(6, selectInput(&quot;x&quot;, label = &quot;Select a feature to visualize&quot;,
-                                         choices = as.list(c(&quot;Race&quot;, &quot;title&quot;, &quot;yearsofexperience&quot;, &quot;yearsatcompany&quot;, &quot;Education&quot;))))
+                     column(6, selectInput("x", label = "Select a feature to visualize",
+                                         choices = as.list(c("Race", "title", "yearsofexperience", "yearsatcompany", "Education"))))
                  ),
                  fluidRow(
-                     plotOutput(&quot;boxplot&quot;)
+                     plotOutput("boxplot")
                  )
         ),
-        tabPanel(&quot;Salary Distribution Plot&quot;,
+        tabPanel("Salary Distribution Plot",
                  fluidRow(
-                     column(12, sliderInput(&quot;range&quot;, &quot;Salary Range:&quot;, min = 10000, max = 2000000, value = 500000,
-                                            step = 10000, sep = &quot;&quot;, ticks = FALSE, animate = TRUE)
+                     column(12, sliderInput("range", "Salary Range:", min = 10000, max = 2000000, value = 500000,
+                                            step = 10000, sep = "", ticks = FALSE, animate = TRUE)
                      )
                  ),
                  fluidRow(
-                     plotOutput(&quot;distributionplot&quot;)
+                     plotOutput("distributionplot")
                  )
         )
     )
     
-)</code></pre>
-<pre><code>## Warning: The select input &quot;company&quot; contains a large number of options; consider
-## using server-side selectize for massively improved performance. See the Details
-## section of the ?selectizeInput help topic.</code></pre>
-<pre class="r"><code>server &lt;- function(input, output) {
+)
+
+server <- function(input, output) {
     
     output$estimated_salary = renderTable({
         
-        salary_df &lt;- data.frame(&quot;Title&quot; = character(), &quot;Salary Estimate&quot; = numeric(), &quot;Confidence interval&quot; = character())
+        salary_df <- data.frame("Title" = character(), "Salary Estimate" = numeric(), "Confidence interval" = character())
         for(i in 1:length(title_encode$x)) {
-            title &lt;- title_encode[i,]$x
-            title_idx &lt;- title_encode[i,]$y
+            title <- title_encode[i,]$x
+            title_idx <- title_encode[i,]$y
         
-            race_idx &lt;- filter(race_encode, x == input$race)$y
-            education_idx &lt;- filter(education_encode, x == input$education)$y
-            company_idx &lt;- filter(company_encode, x == input$company)$y
-            experience_idx &lt;- filter(experience_encode, x == input$yearsofexperience)$y
-            yearsatcompany_idx &lt;- filter(yearsatcompany_encode, x == input$yearsatcompany)$y
+            race_idx <- filter(race_encode, x == input$race)$y
+            education_idx <- filter(education_encode, x == input$education)$y
+            company_idx <- filter(company_encode, x == input$company)$y
+            experience_idx <- filter(experience_encode, x == input$yearsofexperience)$y
+            yearsatcompany_idx <- filter(yearsatcompany_encode, x == input$yearsatcompany)$y
             
-            salary &lt;- race_idx * coef[coef == &quot;race&quot;, ]$value + company_idx * coef[coef == &quot;company&quot;, ]$value + education_idx * coef[coef == &quot;education&quot;, ]$value + title_idx * coef[coef == &quot;title&quot;, ]$value + experience_idx * coef[coef == &quot;experience&quot;, ]$value + yearsatcompany_idx * coef[coef == &quot;yearsatcompany&quot;, ]$value + coef[coef == &quot;(Intercept)&quot;, ]$value
-            salary_lower &lt;- race_idx * coef[coef == &quot;race&quot;, ]$lower + company_idx * coef[coef == &quot;company&quot;, ]$lower + education_idx * coef[coef == &quot;education&quot;, ]$lower + title_idx * coef[coef == &quot;title&quot;, ]$lower + experience_idx * coef[coef == &quot;experience&quot;, ]$lower + yearsatcompany_idx * coef[coef == &quot;yearsatcompany&quot;, ]$lower + coef[coef == &quot;(Intercept)&quot;, ]$lower
-            salary_upper &lt;- race_idx * coef[coef == &quot;race&quot;, ]$upper + company_idx * coef[coef == &quot;company&quot;, ]$upper + education_idx * coef[coef == &quot;education&quot;, ]$upper + title_idx * coef[coef == &quot;title&quot;, ]$upper + experience_idx * coef[coef == &quot;experience&quot;, ]$upper + yearsatcompany_idx * coef[coef == &quot;yearsatcompany&quot;, ]$upper + coef[coef == &quot;(Intercept)&quot;, ]$upper
+            salary <- race_idx * coef[coef == "race", ]$value + company_idx * coef[coef == "company", ]$value + education_idx * coef[coef == "education", ]$value + title_idx * coef[coef == "title", ]$value + experience_idx * coef[coef == "experience", ]$value + yearsatcompany_idx * coef[coef == "yearsatcompany", ]$value + coef[coef == "(Intercept)", ]$value
+            salary_lower <- race_idx * coef[coef == "race", ]$lower + company_idx * coef[coef == "company", ]$lower + education_idx * coef[coef == "education", ]$lower + title_idx * coef[coef == "title", ]$lower + experience_idx * coef[coef == "experience", ]$lower + yearsatcompany_idx * coef[coef == "yearsatcompany", ]$lower + coef[coef == "(Intercept)", ]$lower
+            salary_upper <- race_idx * coef[coef == "race", ]$upper + company_idx * coef[coef == "company", ]$upper + education_idx * coef[coef == "education", ]$upper + title_idx * coef[coef == "title", ]$upper + experience_idx * coef[coef == "experience", ]$upper + yearsatcompany_idx * coef[coef == "yearsatcompany", ]$upper + coef[coef == "(Intercept)", ]$upper
             
-            salary_df &lt;- rbind(salary_df, c(title, round(salary), paste0(round(salary_lower), &quot; - &quot;, round(salary_upper))))
+            salary_df <- rbind(salary_df, c(title, round(salary), paste0(round(salary_lower), " - ", round(salary_upper))))
         }
-        colnames(salary_df) &lt;- c(&quot;Title&quot;, &quot;Salary Estimate&quot;, &quot;Confidence Interval&quot;)
+        colnames(salary_df) <- c("Title", "Salary Estimate", "Confidence Interval")
         salary_df
     })
     
     output$boxplot = renderPlot({
-        df$x &lt;- df[, input$x]
-        df %&gt;% ggplot(aes(x = as.factor(x), y = basesalary)) +
+        df$x <- df[, input$x]
+        df %>% ggplot(aes(x = as.factor(x), y = basesalary)) +
             geom_boxplot() +
-            xlab(sprintf(&quot;%s&quot;, input$x)) +
-            ylab(&quot;Base salary&quot;) +
-            ggtitle(sprintf(&quot;Distribution of base salary for %s&quot;, input$x)) +
+            xlab(sprintf("%s", input$x)) +
+            ylab("Base salary") +
+            ggtitle(sprintf("Distribution of base salary for %s", input$x)) +
             theme_minimal() +
-            theme(plot.title=element_text(hjust=0.5))
+            theme(plot.title=element_text(hjust=0.5),
+                  axis.text.x = element_text(angle = 90))
     })
     
-    output$distributionplot = renderPlot({
-        df %&gt;%
-            filter(basesalary &lt;= as.numeric(input$range)) %&gt;%
-            ggplot(aes(basesalary)) +
-            geom_histogram() +
-            ggtitle(sprintf(&quot;Distribution for base salary in %s&quot;, input$country2)) +
-            ylab(sprintf(&quot;Base salary&quot;)) +
-            theme_minimal() +
+    output$geoplot = renderPlot({
+        if (input$title_g != "All") {
+            df <- filter(df, title == input$title_g)
+        }      
+        if (input$education_g != "All") {
+            df <- filter(df, Education == input$education_g)
+        }
+        if (input$experience_g != "All") {
+            df <- filter(df, yearsofexperience == input$experience_g)
+        }
+        if (input$years_g != "All") {
+          df <- filter(df, yearsatcompany == input$years_g)
+        }
+        
+        df$abbr <- str_replace_all(df$state, " ", "")
+        us_map <- usmap::us_map()
+        
+        statename <- aggregate(cbind(x, y) ~ abbr, data=us_map, 
+                            FUN=function(x)mean(range(x)))
+        colnames(statename) <- c("abbr", "statex", "statey")
+        
+        map_df <- df %>%
+              group_by(abbr) %>%
+              summarise(avg_salary = mean(basesalary)) %>%
+              mutate(salary_level = cut(avg_salary, breaks = c(0, 50000, 750000, 100000, 125000, 150000, 175000, 200000, 250000,300000, Inf), labels = c("50k", "750k", "100k", "125k","150k", "175k", "200k", "250k", "300k", ">300k"), right = TRUE)) %>%
+              left_join(us_map, by = "abbr") %>%
+              left_join(statename, by = "abbr")
+        
+        ggplot(data = map_df, aes(x = x, y = y, group = abbr, fill = salary_level)) + 
+            geom_polygon(color = "grey36") +
+            geom_text(aes(statex, statey, label = abbr), size=2) +
+            theme(panel.grid.major = element_blank(), 
+                  panel.background = element_blank(),
+                  axis.title = element_blank(), 
+                  axis.text = element_blank(),
+                  axis.ticks = element_blank()) +
+            scale_fill_brewer(palette = "Blues", name = "Salary Level") +
             theme(plot.title=element_text(hjust=0.5))
-    })
+        })
+    
+    
+        
+        output$distributionplot = renderPlot({
+            df %>%
+                filter(basesalary <= as.numeric(input$range)) %>%
+                ggplot(aes(basesalary)) +
+                geom_histogram() +
+                ggtitle(sprintf("Distribution for base salary in %s", input$country2)) +
+                ylab(sprintf("Base salary")) +
+                theme_minimal() +
+                theme(plot.title=element_text(hjust=0.5))
+        })
 }
 
 # Run the application 
-# shinyApp(ui = ui, server = server)</code></pre>
+shinyApp(ui = ui, server = server)
+}</code></pre>
 
 </details>
   
